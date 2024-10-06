@@ -1,81 +1,72 @@
 package linkedList
 
-import(
-	"fmt"
-)
-
-type Object interface {}
-
-type Node struct {
-	Key int
-	Value Object
-	Next *Node
+type ListNode[T comparable] struct {
+	Data T
+	Pre *ListNode[T]
+	Next *ListNode[T]
 }
 
-type HashTable struct {
-	Buckets []*Node
-	HashLen int
+type List[T comparable] struct {
+	HeadNode *ListNode[T]
+	TailNode *ListNode[T]
+	Hash map[T]*ListNode[T]
 }
 
-func NewHashTable(hashLen int) *HashTable {
-	buckets := make([]*Node, hashLen)
-	for i := 0; i < hashLen; i++ {
-		buckets[i] = &Node{}
+func InitList[T comparable]() *List[T] {
+	return &List[T]{
+		Hash: make(map[T]*ListNode[T]),
 	}
-	return &HashTable{Buckets: buckets,HashLen: hashLen}
 }
 
-func (h *HashTable) Insert(key int, value Object) {
-	index := key % h.HashLen
-	newHead := &Node{Key: key, Value: value, Next: h.Buckets[index].Next}
-	h.Buckets[index].Next = newHead
+func (l *List[T]) AddNode(val T) {
+	newNode := &ListNode[T]{Data: val}
+	if l.HeadNode == nil {
+		l.HeadNode = newNode
+		l.TailNode = newNode
+	}else {
+		l.TailNode.Next = newNode
+		newNode.Pre = l.TailNode
+		l.TailNode = newNode
+	}
+	l.Hash[val] = newNode
 }
 
-func (h *HashTable) Find(key int) (Object, bool) {
-	index := key % h.HashLen
-	for node := h.Buckets[index].Next; node != nil; node = node.Next {
-		if node.Key == key {
-			return node.Value, true
+func (l *List[T]) DeleteNode(val T) {
+	thisNode, ok := l.Hash[val]
+	if !ok {
+		return
+	}else {
+		delete(l.Hash, val)
+		if thisNode == l.HeadNode {
+			l.HeadNode = thisNode.Next
+			if l.HeadNode != nil {
+				l.HeadNode.Pre = nil
+			}
+		}else if thisNode.Pre != nil {
+			thisNode.Pre.Next = thisNode.Next
+		}
+		if thisNode == l.TailNode {
+			l.TailNode = thisNode.Pre
+			if l.TailNode != nil {
+				l.TailNode.Next = nil
+			}
+		}else if thisNode.Next != nil{
+			thisNode.Next.Pre = thisNode.Pre
 		}
 	}
-	return nil, false
 }
-func (h *HashTable) Change(key int,value Object) bool {
-	index := key % h.HashLen
-	node := h.Buckets[index].Next
-	for node != nil {
-		if node.Key == key {
-			node.Value = value
-			return true
-		}
-		node = node.Next
+
+func (l *List[T]) SetData(olddata, newdata T) {
+	thisNode, ok := l.Hash[olddata]
+	if !ok {
+		return
 	}
-	return false
+	thisNode.Data = newdata
+	delete(l.Hash, olddata)
+	l.Hash[newdata] = thisNode
 }
 
-
-func (h *HashTable) Delete(key int) bool {
-	index := key % h.HashLen
-	node := h.Buckets[index].Next
-	pre := h.Buckets[index]
-	node = pre.Next
-	for node != nil {
-		if node.Key == key {
-			pre.Next = node.Next
-			return true
-		}
-		pre = node
-		node = node.Next
-	}
-	return false
-}
-
-func (ht *HashTable) Print() {
-    for i, bucket := range ht.Buckets {
-        fmt.Printf("Bucket %d: ", i)
-        for node := bucket.Next; node != nil; node = node.Next {
-            fmt.Printf("(%d, %v) -> ", node.Key, node.Value)
-        }
-        fmt.Println("nil")
-    }
+func (l *List[T]) Find(data T) (*ListNode[T], bool) {
+	thisNode, ok := l.Hash[data]
+	return thisNode, ok
 }
