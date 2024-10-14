@@ -1,25 +1,25 @@
-package linkedList
+package lists
 
-type ListNode[T comparable] struct {
+type listNode[T comparable] struct {
 	Data T
-	Pre *ListNode[T]
-	Next *ListNode[T]
+	Pre *listNode[T]
+	Next *listNode[T]
 }
 
-type List[T comparable] struct {
-	HeadNode *ListNode[T]
-	TailNode *ListNode[T]
-	Hash map[T]*ListNode[T]
+type LinkedLists[T comparable] struct {
+	HeadNode *listNode[T]
+	TailNode *listNode[T]
+	Hash map[T]*listNode[T]
 }
 
-func InitList[T comparable]() *List[T] {
-	return &List[T]{
-		Hash: make(map[T]*ListNode[T]),
+func NewList[T comparable]() *LinkedLists[T] {
+	return &LinkedLists[T]{
+		Hash: make(map[T]*listNode[T]),
 	}
 }
 
-func (l *List[T]) AddNode(val T) {
-	newNode := &ListNode[T]{Data: val}
+func (l *LinkedLists[T]) AddNode(val T) {
+	newNode := &listNode[T]{Data: val}
 	if l.HeadNode == nil {
 		l.HeadNode = newNode
 		l.TailNode = newNode
@@ -31,32 +31,27 @@ func (l *List[T]) AddNode(val T) {
 	l.Hash[val] = newNode
 }
 
-func (l *List[T]) DeleteNode(val T) {
+func (l *LinkedLists[T]) DeleteNode(val T) {
 	thisNode, ok := l.Hash[val]
 	if !ok {
 		return
-	}else {
-		delete(l.Hash, val)
-		if thisNode == l.HeadNode {
-			l.HeadNode = thisNode.Next
-			if l.HeadNode != nil {
-				l.HeadNode.Pre = nil
-			}
-		}else if thisNode.Pre != nil {
-			thisNode.Pre.Next = thisNode.Next
-		}
-		if thisNode == l.TailNode {
-			l.TailNode = thisNode.Pre
-			if l.TailNode != nil {
-				l.TailNode.Next = nil
-			}
-		}else if thisNode.Next != nil{
-			thisNode.Next.Pre = thisNode.Pre
-		}
+	}
+	delete(l.Hash, val)
+	if thisNode == l.HeadNode && l.HeadNode != nil {
+		l.HeadNode = thisNode.Next
+		l.HeadNode.Pre = nil
+	}else if thisNode.Pre != nil {
+		thisNode.Pre.Next = thisNode.Next
+	}
+	if thisNode == l.TailNode && l.TailNode != nil {
+		l.TailNode = thisNode.Pre
+		l.TailNode.Next = nil
+	}else if thisNode.Next != nil{
+		thisNode.Next.Pre = thisNode.Pre
 	}
 }
 
-func (l *List[T]) SetData(olddata, newdata T) {
+func (l *LinkedLists[T]) SetData(olddata, newdata T) {
 	thisNode, ok := l.Hash[olddata]
 	if !ok {
 		return
@@ -66,7 +61,7 @@ func (l *List[T]) SetData(olddata, newdata T) {
 	l.Hash[newdata] = thisNode
 }
 
-func (l *List[T]) Find(data T) (*ListNode[T], bool) {
+func (l *LinkedLists[T]) Find(data T) (*listNode[T], bool) {
 	thisNode, ok := l.Hash[data]
 	return thisNode, ok
 }
