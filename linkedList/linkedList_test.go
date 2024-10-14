@@ -1,11 +1,11 @@
-package linkedList
+package lists
 
 import (
 	"fmt"
 	"testing"
 )
 
-func printList[T comparable](l *List[T]) {
+func printList[T comparable](l *LinkedLists[T]) {
 	fmt.Print("List: ")
 	for node := l.HeadNode; node != nil; node = node.Next {
 		fmt.Printf("%v ", node.Data)
@@ -15,7 +15,7 @@ func printList[T comparable](l *List[T]) {
 
 func TestListOperations(t *testing.T) {
 
-	l := InitList[int]()
+	l := NewList[int]()
 
 	l.AddNode(10)
 	l.AddNode(20)
