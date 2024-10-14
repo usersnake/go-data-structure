@@ -20,7 +20,7 @@ func TestListOperations(t *testing.T) {
 	l.AddNode(10)
 	l.AddNode(20)
 	l.AddNode(30)
-
+	
 	fmt.Println("Initial list state:")
 	printList(l)
 
